@@ -12,7 +12,7 @@ const getError = (res, err) => {
 
 const getCards = (req, res) => {
   Card.find({})
-    .populate('owner')
+    .populate(['owner', 'likes'])
     .then((cards) => {
       res.status(200).send(cards);
     })
@@ -26,7 +26,9 @@ const createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(200).send(card);
+      Card.findById(card._id).populate(['owner', 'likes']).then((c) => {
+        res.send(c);
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -40,8 +42,8 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
-    .then((card) => {
-      res.status(200).send(card);
+    .then(() => {
+      res.status(200).send({ message: 'Пост удалён' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -57,6 +59,7 @@ const likeCard = (req, res) => {
     $addToSet: { likes: req.user._id },
   },
   { new: true })
+    .populate(['owner', 'likes'])
     .then((card) => {
       res.status(200).send(card);
     })
@@ -68,6 +71,7 @@ const dislikeCard = (req, res) => {
     $pull: { likes: req.user._id },
   },
   { new: true })
+    .populate(['owner', 'likes'])
     .then((card) => {
       res.status(200).send(card);
     })
