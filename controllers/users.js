@@ -1,14 +1,7 @@
 const User = require('../models/user');
+const { notFoundError, internalServerError, getError } = require('../errors/errors');
 
-const getError = (res, err) => {
-  if (err.name === 'CastError') {
-    res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
-  } else if (err.name === 'ValidationError') {
-    res.status(400).send({ message: `${Object.values(err.errors).map((error) => error.message).join(', ')}` });
-  } else {
-    res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-  }
-};
+const notFoundMessage = { message: 'Запрашиваемый пользователь не найден' };
 
 const getUsers = (req, res) => {
   User.find({})
@@ -16,7 +9,7 @@ const getUsers = (req, res) => {
       res.status(200).send(users);
     })
     .catch(() => {
-      res.status(500).send({ message: 'Внутренняя ошибка сервера' });
+      internalServerError(res);
     });
 };
 
@@ -24,14 +17,13 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
+      if (!user) {
+        notFoundError(res, notFoundMessage);
+      }
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
-      } else {
-        res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-      }
+      getError(res, err, notFoundMessage);
     });
 };
 
@@ -42,11 +34,7 @@ const createUser = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `${Object.values(err.errors).map((error) => error.message).join(', ')}` });
-      } else {
-        res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-      }
+      getError(res, err, notFoundMessage);
     });
 };
 
@@ -57,10 +45,13 @@ const updateUser = (req, res) => {
     runValidators: true,
   })
     .then((user) => {
+      if (!user) {
+        notFoundError(res, notFoundMessage);
+      }
       res.status(200).send(user);
     })
     .catch((err) => {
-      getError(res, err);
+      getError(res, err, notFoundMessage);
     });
 };
 
@@ -71,10 +62,13 @@ const updateAvatar = (req, res) => {
     runValidators: true,
   })
     .then((user) => {
+      if (!user) {
+        notFoundError(res, notFoundMessage);
+      }
       res.status(200).send(user);
     })
     .catch((err) => {
-      getError(res, err);
+      getError(res, err, notFoundMessage);
     });
 };
 

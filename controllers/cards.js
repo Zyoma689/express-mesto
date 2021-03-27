@@ -1,14 +1,7 @@
 const Card = require('../models/card');
+const { notFoundError, internalServerError, getError } = require('../errors/errors');
 
-const getError = (res, err) => {
-  if (err.name === 'CastError') {
-    res.status(404).send({ message: 'Указанная карточка не найдена' });
-  } else if (err.name === 'ValidationError') {
-    res.status(400).send({ message: `${Object.values(err.errors).map((error) => error.message).join(', ')}` });
-  } else {
-    res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-  }
-};
+const notFoundMessage = { message: 'Указанная карточка не найдена' };
 
 const getCards = (req, res) => {
   Card.find({})
@@ -17,7 +10,7 @@ const getCards = (req, res) => {
       res.status(200).send(cards);
     })
     .catch(() => {
-      res.status(500).send({ message: 'Внутренняя ошибка сервера' });
+      internalServerError(res);
     });
 };
 
@@ -31,26 +24,21 @@ const createCard = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `${Object.values(err.errors).map((error) => error.message).join(', ')}` });
-      } else {
-        res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-      }
+      getError(res, err, notFoundMessage);
     });
 };
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
-    .then(() => {
+    .then((card) => {
+      if (!card) {
+        notFoundError(res, notFoundMessage);
+      }
       res.status(200).send({ message: 'Пост удалён' });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Указанная карточка не найдена' });
-      } else {
-        res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-      }
+      getError(res, err, notFoundMessage);
     });
 };
 
@@ -61,9 +49,12 @@ const likeCard = (req, res) => {
   { new: true })
     .populate(['owner', 'likes'])
     .then((card) => {
+      if (!card) {
+        notFoundError(res, notFoundMessage);
+      }
       res.status(200).send(card);
     })
-    .catch((err) => getError(res, err));
+    .catch((err) => getError(res, err, notFoundMessage));
 };
 
 const dislikeCard = (req, res) => {
@@ -73,9 +64,12 @@ const dislikeCard = (req, res) => {
   { new: true })
     .populate(['owner', 'likes'])
     .then((card) => {
+      if (!card) {
+        notFoundError(res, notFoundMessage);
+      }
       res.status(200).send(card);
     })
-    .catch((err) => getError(res, err));
+    .catch((err) => getError(res, err, notFoundMessage));
 };
 
 module.exports = {
