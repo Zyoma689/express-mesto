@@ -30,6 +30,19 @@ const getUserById = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        notFoundError(res, notFoundMessage);
+      }
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      getError(res, err, notFoundMessage);
+    });
+};
+
 const createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
@@ -100,6 +113,7 @@ const login = (req, res) => {
 module.exports = {
   getUsers,
   getUserById,
+  getCurrentUser,
   createUser,
   updateUser,
   updateAvatar,

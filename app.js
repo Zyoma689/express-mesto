@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-
+const { createUser, login } = require('./controllers/users');
 const router = require('./routes/index');
 
 const { PORT = 3000 } = process.env;
@@ -16,7 +16,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '605b1a61ad50c1421acd2984',
+    _id: '606aa71d974b04203c5d66df',
   };
 
   next();
@@ -25,6 +25,8 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// app.post('/signup', createUser);
+// app.post('/signin', login);
 app.use('/', router);
 
 app.listen(PORT, () => {});
