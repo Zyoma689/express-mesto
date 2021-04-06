@@ -30,12 +30,15 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         notFoundError(res, notFoundMessage);
+      } else if (card.owner._id !== req.user._id) {
+        res.status(403).send({ message: 'Вы не можете удалять чужие посты' });
+      } else {
+        res.status(200).send({ message: 'Пост удалён' });
       }
-      res.status(200).send({ message: 'Пост удалён' });
     })
     .catch((err) => {
       getError(res, err, notFoundMessage);
