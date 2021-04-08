@@ -1,20 +1,18 @@
 const Card = require('../models/card');
-const { notFoundError, internalServerError, getError } = require('../errors/errors');
 
-const notFoundMessage = { message: 'Указанная карточка не найдена' };
+const { NotFoundError } = require('../errors/404_not-found-error');
+const { ForbiddenError } = require('../errors/403_forbidden-error');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => {
       res.status(200).send(cards);
     })
-    .catch(() => {
-      internalServerError(res);
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
@@ -23,29 +21,25 @@ const createCard = (req, res) => {
         res.send(c);
       });
     })
-    .catch((err) => {
-      getError(res, err, notFoundMessage);
-    });
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        notFoundError(res, notFoundMessage);
+        throw new NotFoundError('Карточка не найдена');
       } else if (card.owner._id !== req.user._id) {
-        res.status(403).send({ message: 'Вы не можете удалять чужие посты' });
+        throw new ForbiddenError('Вы не можете удалять чужие карточки');
       } else {
-        res.status(200).send({ message: 'Пост удалён' });
+        res.status(200).send({ message: 'Карточка удалена' });
       }
     })
-    .catch((err) => {
-      getError(res, err, notFoundMessage);
-    });
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, {
     $addToSet: { likes: req.user._id },
   },
@@ -53,14 +47,14 @@ const likeCard = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        notFoundError(res, notFoundMessage);
+        throw new NotFoundError('Карточка не найдена');
       }
       res.status(200).send(card);
     })
-    .catch((err) => getError(res, err, notFoundMessage));
+    .catch(next);
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, {
     $pull: { likes: req.user._id },
   },
@@ -68,11 +62,11 @@ const dislikeCard = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        notFoundError(res, notFoundMessage);
+        throw new NotFoundError('Карточка не найдена');
       }
       res.status(200).send(card);
     })
-    .catch((err) => getError(res, err, notFoundMessage));
+    .catch(next);
 };
 
 module.exports = {
