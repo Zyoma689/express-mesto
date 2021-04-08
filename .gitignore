@@ -1,3 +1,5 @@
+.env1
+.env
 # Logs
 logs
 *.log
@@ -14,4 +16,3 @@ node_modules
 .idea
 .vscode
 
-.env
