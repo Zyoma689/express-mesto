@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser');
 const router = require('./routes/index');
 const { celebrateErrorHandler } = require('./middlewares/celebrate-errors-handler');
 const { errorsHandler } = require('./middlewares/errors-handler');
-// const { errors } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -24,7 +23,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', router);
 
 app.use(celebrateErrorHandler);
-// app.use(errors());
 app.use(errorsHandler);
 
 app.listen(PORT, () => {});
