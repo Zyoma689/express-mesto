@@ -10,6 +10,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: [true, 'Ссылка на изображение обязательна'],
+    validate: {
+      validator: (v) => /https?:\/\/(www\.)?([-\w.:])+([-\w._~:/?#[\]@!$&'()*+,;=])*/ig.test(v),
+      message: 'URL должен быть валидным',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

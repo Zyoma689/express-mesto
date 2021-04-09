@@ -137,12 +137,12 @@ const updateAvatarValidator = celebrate({
       .string()
       .uri()
       .required()
-      .label('Ссылка')
+      .label('URL')
       .messages({
-        'string.base': '{#label} должна быть строкой',
-        'any.required': '{#label} обязательна для заполнения',
-        'string.uri': '{#label} должна быть валидной',
-        'string.empty': '{#label} не может быть пустой',
+        'string.base': '{#label} должен быть строкой',
+        'any.required': '{#label} обязателен для заполнения',
+        'string.uri': '{#label} должен быть валидным',
+        'string.empty': '{#label} не может быть пустым',
       }),
   }),
 });
@@ -166,12 +166,12 @@ const createCardValidator = celebrate({
       .string()
       .uri()
       .required()
-      .label('Ссылка')
+      .label('URL')
       .messages({
-        'string.base': '{#label} должна быть строкой',
-        'any.required': '{#label} обязательна для заполнения',
-        'string.uri': '{#label} должна быть валидной',
-        'string.empty': '{#label} не может быть пустой',
+        'string.base': '{#label} должен быть строкой',
+        'any.required': '{#label} обязателен для заполнения',
+        'string.uri': '{#label} должен быть валидным',
+        'string.empty': '{#label} не может быть пустым',
       }),
   }),
 });
