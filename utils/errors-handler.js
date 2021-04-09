@@ -3,12 +3,12 @@ const { NotFoundError } = require('../errors/404_not-found-error');
 const { ConflictError } = require('../errors/409_conflict-error');
 
 const errorsHandler = (err) => {
-  const { name } = err;
+  const { name, code } = err;
   if (name === 'ValidationError') {
     throw new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`);
   } else if (name === 'CastError') {
     throw new NotFoundError('Карточка или пользователь не найдены');
-  } else if (err.name === 'MongoError' && err.code === 11000) {
+  } else if (name === 'MongoError' && code === 11000) {
     throw new ConflictError('Пользователь с таким email уже существует');
   }
 };
