@@ -4,11 +4,15 @@ const { createUserValidator, loginValidator } = require('../utils/celebrate-vali
 const auth = require('../middlewares/auth');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
+const { NotFoundError } = require('../errors/404_not-found-error');
 
 router.post('/signup', createUserValidator, createUser);
 router.post('/signin', loginValidator, login);
 router.use(auth);
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
+router.use('*', () => {
+  throw new NotFoundError('Запрашиваемый ресурс не существует');
+});
 
 module.exports = router;
