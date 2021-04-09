@@ -4,6 +4,7 @@ const User = require('../models/user');
 
 const { BadRequestError } = require('../errors/400_bad-request-error');
 const { NotFoundError } = require('../errors/404_not-found-error');
+const { errorsHandler } = require('../utils/errors-handler');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -11,6 +12,9 @@ const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(200).send(users);
+    })
+    .catch((err) => {
+      errorsHandler(err);
     })
     .catch(next);
 };
@@ -24,6 +28,9 @@ const getUserById = (req, res, next) => {
       }
       res.status(200).send(user);
     })
+    .catch((err) => {
+      errorsHandler(err);
+    })
     .catch(next);
 };
 
@@ -34,6 +41,9 @@ const getCurrentUser = (req, res, next) => {
         throw new NotFoundError('Пользователь не найден');
       }
       res.status(200).send(user);
+    })
+    .catch((err) => {
+      errorsHandler(err);
     })
     .catch(next);
 };
@@ -55,9 +65,11 @@ const createUser = (req, res, next) => {
           User.findById(_id).select()
             .then((user) => res.status(200).send(user));
         })
+        .catch((err) => {
+          errorsHandler(err);
+        })
         .catch(next);
-    })
-    .catch(next);
+    });
 };
 
 const updateUser = (req, res, next) => {
@@ -71,6 +83,9 @@ const updateUser = (req, res, next) => {
         throw new NotFoundError('Пользователь не найден');
       }
       res.status(200).send(user);
+    })
+    .catch((err) => {
+      errorsHandler(err);
     })
     .catch(next);
 };
@@ -87,6 +102,9 @@ const updateAvatar = (req, res, next) => {
       }
       res.status(200).send(user);
     })
+    .catch((err) => {
+      errorsHandler(err);
+    })
     .catch(next);
 };
 
@@ -96,6 +114,9 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
       res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true }).end();
+    })
+    .catch((err) => {
+      errorsHandler(err);
     })
     .catch(next);
 };

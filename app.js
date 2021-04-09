@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const router = require('./routes/index');
 const { celebrateErrorHandler } = require('./middlewares/celebrate-errors-handler');
-const { errorsHandler } = require('./middlewares/errors-handler');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -23,6 +22,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', router);
 
 app.use(celebrateErrorHandler);
-app.use(errorsHandler);
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
+  next();
+});
 
 app.listen(PORT, () => {});

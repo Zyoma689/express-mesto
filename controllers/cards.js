@@ -2,12 +2,16 @@ const Card = require('../models/card');
 
 const { NotFoundError } = require('../errors/404_not-found-error');
 const { ForbiddenError } = require('../errors/403_forbidden-error');
+const { errorsHandler } = require('../utils/errors-handler');
 
 const getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => {
       res.status(200).send(cards);
+    })
+    .catch((err) => {
+      errorsHandler(err);
     })
     .catch(next);
 };
@@ -20,6 +24,9 @@ const createCard = (req, res, next) => {
       Card.findById(card._id).populate(['owner', 'likes']).then((c) => {
         res.send(c);
       });
+    })
+    .catch((err) => {
+      errorsHandler(err);
     })
     .catch(next);
 };
@@ -40,6 +47,9 @@ const deleteCard = (req, res, next) => {
           .catch(next);
       }
     })
+    .catch((err) => {
+      errorsHandler(err);
+    })
     .catch(next);
 };
 
@@ -55,6 +65,9 @@ const likeCard = (req, res, next) => {
       }
       res.status(200).send(card);
     })
+    .catch((err) => {
+      errorsHandler(err);
+    })
     .catch(next);
 };
 
@@ -69,6 +82,9 @@ const dislikeCard = (req, res, next) => {
         throw new NotFoundError('Карточка не найдена');
       }
       res.status(200).send(card);
+    })
+    .catch((err) => {
+      errorsHandler(err);
     })
     .catch(next);
 };
